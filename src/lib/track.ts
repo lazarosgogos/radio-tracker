@@ -40,6 +40,13 @@ export function normalizeTrackIdentity(artist: string | null, title: string | nu
   return normalizeText([artist, title].filter(Boolean).join(" - ") || rawText);
 }
 
+export function isIgnoredTrackText(rawText: string, ignoredTrackTexts: readonly string[] = []): boolean {
+  const normalizedRawText = normalizeText(rawText);
+  if (!normalizedRawText) return false;
+
+  return ignoredTrackTexts.some((ignoredTrackText) => normalizeText(ignoredTrackText) === normalizedRawText);
+}
+
 export function normalizeText(value: string): string {
   return value
     .normalize("NFKD")

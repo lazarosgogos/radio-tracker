@@ -204,6 +204,95 @@ p {
   margin: 34px 0 20px;
 }
 
+.archive-filters {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(220px, 0.9fr) repeat(2, minmax(260px, 1fr)) auto;
+  margin: 34px 0 20px;
+}
+
+.filter-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.filter-field span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.filter-field input {
+  width: 100%;
+}
+
+.range-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+}
+
+.range-heading {
+  align-items: baseline;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.range-heading span,
+.range-control span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.range-heading strong {
+  font-size: 14px;
+  line-height: 1.2;
+  text-align: right;
+}
+
+.range-control {
+  display: grid;
+  gap: 5px;
+}
+
+.range-control input[type="range"] {
+  accent-color: var(--accent);
+  background: transparent;
+  border: 0;
+  min-height: 24px;
+  padding: 0;
+  width: 100%;
+}
+
+.filter-actions {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.clear-filters {
+  color: var(--accent-dark);
+  font-size: 14px;
+  font-weight: 800;
+  padding: 14px 4px;
+  text-decoration: none;
+}
+
+.clear-filters:hover {
+  text-decoration: underline;
+}
+
 .home-search {
   display: grid;
   gap: 10px;
@@ -298,6 +387,10 @@ input {
   padding: 0 14px;
 }
 
+input[type="hidden"] {
+  display: none;
+}
+
 button {
   background: var(--accent);
   border: 1px solid var(--accent);
@@ -369,6 +462,16 @@ time {
   font-weight: 800;
 }
 
+@media (max-width: 1040px) {
+  .archive-filters {
+    grid-template-columns: minmax(220px, 1fr) minmax(260px, 1fr);
+  }
+
+  .filter-actions {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 720px) {
   .site-header {
     align-items: flex-start;
@@ -380,6 +483,7 @@ time {
   .station-header,
   .home-search,
   .search-row,
+  .archive-filters,
   .history-row {
     grid-template-columns: 1fr;
   }

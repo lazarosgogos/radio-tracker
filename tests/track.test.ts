@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { normalizeText, parseTrack } from "../src/lib/track";
+import { isIgnoredTrackText, normalizeText, parseTrack } from "../src/lib/track";
 
 test("parses explicit artist and title while preserving raw text", () => {
   const parsed = parseTrack("Augusto Yepes, Talon - Funk it (", "Augusto Yepes, Talon", "Funk it (");
@@ -20,4 +20,9 @@ test("parses common separator when only raw text is available", () => {
 
 test("normalizes accents, case, and punctuation for fuzzy identity", () => {
   assert.equal(normalizeText("  Déjà Vu!!!  "), "deja vu");
+});
+
+test("matches ignored non-track text with normalized comparison", () => {
+  assert.equal(isIgnoredTrackText("FLY 104 - fly into the music", ["fly 104: Fly Into The Music"]), true);
+  assert.equal(isIgnoredTrackText("Artist Name - Song Title", ["FLY 104 - fly into the music"]), false);
 });

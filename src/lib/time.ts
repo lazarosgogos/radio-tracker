@@ -7,9 +7,9 @@ export function formatStationTime(value: Date | string, timezone: string): strin
   }).format(date);
 }
 
-export function formatRelative(value: Date | string): string {
+export function formatRelative(value: Date | string, now = Date.now()): string {
   const date = typeof value === "string" ? new Date(value) : value;
-  const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+  const seconds = Math.max(0, Math.floor((now - date.getTime()) / 1000));
   if (seconds < 60) return `${seconds}s ago`;
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;

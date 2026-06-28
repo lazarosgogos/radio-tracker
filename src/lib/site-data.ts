@@ -1,6 +1,7 @@
-import { listLatestPlays, listStationPlays, searchGlobalPlays, type PlayRow } from "@/lib/db/repository";
-import { getStationConfig, stationConfigs } from "@/lib/stations";
-import { normalizeText } from "@/lib/track";
+import { hasStationArchiveFilters, type StationArchiveFilters } from "@/lib/archive-filters";
+import { listStationPlays, searchGlobalPlays, type PlayRow } from "@/lib/db/repository";
+import { getStationConfig, stationConfigs, type StationConfig } from "@/lib/stations";
+import { isIgnoredTrackText, normalizeText } from "@/lib/track";
 
 export type StationSummary = {
   slug: string;
@@ -11,14 +12,20 @@ export type StationSummary = {
 
 export async function getStationSummaries(): Promise<{ stations: StationSummary[]; error: string | null }> {
   try {
-    const latest = await listLatestPlays();
+    const stationPlays = await Promise.all(
+      stationConfigs.map(async (station) => ({
+        station,
+        plays: filterIgnoredPlays(await listStationPlays(station.slug), station)
+      }))
+    );
+
     return {
       error: null,
-      stations: stationConfigs.map((station) => ({
+      stations: stationPlays.map(({ station, plays }) => ({
         slug: station.slug,
         name: station.name,
         timezone: station.timezone,
-        latestPlay: latest.find((play) => play.station_slug === station.slug) ?? null
+        latestPlay: plays[0] ?? null
       }))
     };
   } catch (error) {
@@ -50,9 +57,11 @@ export async function getHomeSearch(
   });
 
   try {
+    const trackResults = await searchGlobalPlays(query);
+
     return {
       stationResults,
-      trackResults: await searchGlobalPlays(query),
+      trackResults: filterIgnoredSearchResults(trackResults),
       error: null
     };
   } catch (error) {
@@ -66,7 +75,7 @@ export async function getHomeSearch(
 
 export async function getStationArchive(
   slug: string,
-  search?: string
+  filters: StationArchiveFilters = {}
 ): Promise<{ station: StationSummary | null; plays: PlayRow[]; error: string | null }> {
   const config = getStationConfig(slug);
   if (!config) {
@@ -74,8 +83,8 @@ export async function getStationArchive(
   }
 
   try {
-    const plays = await listStationPlays(slug, search);
-    const latestPlays = search?.trim() ? await listStationPlays(slug) : plays;
+    const plays = filterIgnoredPlays(await listStationPlays(slug, filters), config);
+    const latestPlays = hasStationArchiveFilters(filters) ? filterIgnoredPlays(await listStationPlays(slug), config) : plays;
     return {
       error: null,
       plays,
@@ -98,4 +107,19 @@ export async function getStationArchive(
       }
     };
   }
+}
+
+function filterIgnoredSearchResults(plays: PlayRow[]) {
+  return plays.filter((play) => {
+    const config = getStationConfig(play.station_slug);
+    return !config || !isIgnoredPlay(play, config);
+  });
+}
+
+function filterIgnoredPlays(plays: PlayRow[], config: StationConfig) {
+  return plays.filter((play) => !isIgnoredPlay(play, config));
+}
+
+function isIgnoredPlay(play: PlayRow, config: StationConfig) {
+  return isIgnoredTrackText(play.raw_text, config.ignoredTrackTexts);
 }

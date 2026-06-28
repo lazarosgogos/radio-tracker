@@ -2,7 +2,7 @@ import { getAdapter } from "../src/lib/adapters";
 import { closePool } from "../src/lib/db/client";
 import { logPollRun, recordPlay, upsertStation, upsertTrack } from "../src/lib/db/repository";
 import { stationConfigs, type StationConfig } from "../src/lib/stations";
-import { parseTrack } from "../src/lib/track";
+import { isIgnoredTrackText, parseTrack } from "../src/lib/track";
 
 const pollOnce = process.env.POLL_ONCE === "true";
 
@@ -13,6 +13,19 @@ async function pollStation(config: StationConfig): Promise<void> {
   try {
     const nowPlaying = await adapter.fetchNowPlaying(config);
     const parsed = parseTrack(nowPlaying.rawText, nowPlaying.artist, nowPlaying.title);
+
+    if (isIgnoredTrackText(parsed.rawText, config.ignoredTrackTexts)) {
+      await logPollRun({
+        stationId: station.id,
+        success: true,
+        message: `Ignored non-track: ${parsed.rawText}`,
+        rawPayload: nowPlaying.rawPayload
+      });
+
+      console.log(`${config.name}: ignored - ${parsed.rawText}`);
+      return;
+    }
+
     const track = await upsertTrack(parsed);
     const result = await recordPlay({
       stationId: station.id,

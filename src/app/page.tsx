@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { LiveStationGrid } from "@/components/LiveStationGrid";
 import { TrackLine } from "@/components/TrackLine";
-import { getHomeSearch, getStationSummaries } from "@/lib/site-data";
+import { getHomeSearch, getStationSummaries, type StationSummary } from "@/lib/site-data";
 import { formatRelative, formatStationTime } from "@/lib/time";
 
 type HomePageProps = {
@@ -90,30 +91,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <h2>Stations</h2>
       </div>
 
-      <div className="station-grid">
-        {stations.map((station) => (
-          <StationCard station={station} key={station.slug} />
-        ))}
-      </div>
+      <LiveStationGrid initialStations={stations} />
     </section>
   );
 }
 
-type StationCardProps = {
-  station: {
-    slug: string;
-    name: string;
-    timezone: string;
-    latestPlay: {
-      played_at: string;
-      raw_text: string;
-      artist: string | null;
-      title: string | null;
-    } | null;
-  };
-};
-
-function StationCard({ station }: StationCardProps) {
+function StationCard({ station }: { station: StationSummary }) {
   return (
     <Link className="station-card" href={`/stations/${station.slug}`}>
       <span className="station-label">{station.name}</span>
