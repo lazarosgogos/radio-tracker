@@ -91,8 +91,7 @@ nav a:hover {
 }
 
 .eyebrow,
-.section-label,
-.station-label {
+.section-label {
   color: var(--accent-dark);
   font-size: 13px;
   font-weight: 800;
@@ -148,10 +147,19 @@ p {
   transform: translateY(-2px);
 }
 
+.station-label {
+  color: var(--accent-dark);
+  font-size: 21px;
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
 .track-title {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 750;
-  line-height: 1.2;
+  line-height: 1.25;
   overflow-wrap: anywhere;
 }
 

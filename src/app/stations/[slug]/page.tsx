@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { LiveStationArchive } from "@/components/LiveStationArchive";
 import { parseStationArchiveFilters, type StationArchiveSearchParams } from "@/lib/archive-filters";
 import { getStationArchive } from "@/lib/site-data";
+import { getStationConfig } from "@/lib/stations";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -19,7 +20,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function StationPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
-  const filters = parseStationArchiveFilters(await searchParams);
+  const config = getStationConfig(slug);
+  if (!config) notFound();
+
+  const filters = parseStationArchiveFilters(await searchParams, { timezone: config.timezone });
   const { station, plays, error } = await getStationArchive(slug, filters);
 
   if (!station) notFound();

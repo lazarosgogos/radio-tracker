@@ -61,3 +61,42 @@ test("uses first value for repeated query params", () => {
     todFrom: "07:00"
   });
 });
+
+test("parses native range slider params", () => {
+  const filters = parseStationArchiveFilters(
+    {
+      fromDay: "29",
+      toDay: "30",
+      todFromMinute: "480",
+      todToMinute: "540"
+    },
+    {
+      now: new Date("2026-06-28T12:00:00Z"),
+      timezone: "Europe/Athens"
+    }
+  );
+
+  assert.deepEqual(filters, {
+    from: "2026-06-27T00:00",
+    to: "2026-06-28T23:59",
+    todFrom: "08:00",
+    todTo: "09:00"
+  });
+});
+
+test("ignores default native range slider params", () => {
+  const filters = parseStationArchiveFilters(
+    {
+      fromDay: "0",
+      toDay: "30",
+      todFromMinute: "0",
+      todToMinute: "1439"
+    },
+    {
+      now: new Date("2026-06-28T12:00:00Z"),
+      timezone: "Europe/Athens"
+    }
+  );
+
+  assert.deepEqual(filters, {});
+});
